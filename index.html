@@ -261,8 +261,6 @@
 
     <aside class="panel" aria-label="Fabric controls">
       <h1>Squared Up fabric planner</h1>
-      <p class="hint"> </p>
-
       <div class="section-title">Plain background / sashing</div>
       <div class="colour-row">
         <input id="bgPicker" type="color" value="#f7f1dc" aria-label="Choose background and sashing colour">
@@ -283,13 +281,15 @@
 
       <div class="buttons">
         <button id="clearBlockBtn" class="action" type="button">Clear block</button>
+        <button id="rotateBlockBtn" class="action" type="button">Rotate swatch</button>
+        <button id="saveDesignBtn" class="action" type="button">Save design</button>
+        <button id="loadDesignBtn" class="action" type="button">Load design</button>
         <button id="resetBtn" class="action" type="button">Reset all</button>
-        <button id="downloadSvgBtn" class="action" type="button">Download SVG</button>
         <button id="downloadJpegBtn" class="action" type="button">Download JPEG</button>
         <button id="downloadPngBtn" class="action primary" type="button">Download PNG</button>
+        <input id="designInput" type="file" accept="application/json,.json" hidden>
       </div>
 
-      <p class="small-note">Layout: 5 × 6 blocks, 10&quot; blocks, 2&quot; gaps, 2&quot; outer border. Inside each block: 4&quot; strip + 1&quot; gap + 2&quot; strip + 1&quot; gap + 2&quot; strip.</p>
     </aside>
   </main>
 
@@ -319,8 +319,11 @@
       var swatchGrid = document.getElementById('swatchGrid');
       var selectedPatternName = document.getElementById('selectedPatternName');
       var clearBlockBtn = document.getElementById('clearBlockBtn');
+      var rotateBlockBtn = document.getElementById('rotateBlockBtn');
       var resetBtn = document.getElementById('resetBtn');
-      var downloadSvgBtn = document.getElementById('downloadSvgBtn');
+      var saveDesignBtn = document.getElementById('saveDesignBtn');
+      var loadDesignBtn = document.getElementById('loadDesignBtn');
+      var designInput = document.getElementById('designInput');
       var downloadPngBtn = document.getElementById('downloadPngBtn');
       var downloadJpegBtn = document.getElementById('downloadJpegBtn');
 
@@ -328,9 +331,11 @@
       var selectedFabricId = null;
       var selectedBlockId = null;
       var blockFills = {};
+      var blockRotations = {};
       var nextFabricId = 1;
+      var DESIGN_TYPE = 'squared-up-fabric-planner-design';
       var builtInSwatches = [];
-      for (var builtIndex = 1; builtIndex <= 40; builtIndex += 1) {
+      for (var builtIndex = 1; builtIndex <= 20; builtIndex += 1) {
         var suffix = builtIndex < 10 ? '0' + builtIndex : String(builtIndex);
         builtInSwatches.push({
           id: 'builtin-' + suffix,
@@ -402,6 +407,10 @@
         return null;
       }
 
+      function rotationForBlock(id) {
+        return ((Number(blockRotations[id]) || 0) % 360 + 360) % 360;
+      }
+
       function stripRects(x, y, orientation) {
         if (orientation === 'vertical') {
           return [
@@ -466,6 +475,10 @@
           preserveAspectRatio: 'xMidYMid slice',
           'clip-path': 'url(#' + clipId + ')'
         });
+        var angle = rotationForBlock(id);
+        if (angle) {
+          image.setAttribute('transform', 'rotate(' + angle + ' ' + (pos.x + BLOCK / 2) + ' ' + (pos.y + BLOCK / 2) + ')');
+        }
         image.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', fabric.dataUrl);
         g.appendChild(image);
       }
@@ -635,11 +648,21 @@
       function clearSelectedBlock() {
         if (!selectedBlockId) return;
         delete blockFills[selectedBlockId];
+        delete blockRotations[selectedBlockId];
+        drawBlocks();
+      }
+
+      function rotateSelectedSwatch() {
+        if (!selectedBlockId) return;
+        var next = (rotationForBlock(selectedBlockId) + 90) % 360;
+        if (next) blockRotations[selectedBlockId] = next;
+        else delete blockRotations[selectedBlockId];
         drawBlocks();
       }
 
       function resetAll() {
         blockFills = {};
+        blockRotations = {};
         selectedBlockId = null;
         drawBlocks();
       }
@@ -654,6 +677,117 @@
 
       function svgEscape(value) {
         return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      function copyKnownBlocks(source) {
+        var output = {};
+        source = source || {};
+        for (var row = 0; row < ROWS; row += 1) {
+          for (var col = 0; col < COLS; col += 1) {
+            var id = blockId(row, col);
+            if (source[id]) output[id] = source[id];
+          }
+        }
+        return output;
+      }
+
+      function copyKnownRotations(source) {
+        var output = {};
+        source = source || {};
+        for (var row = 0; row < ROWS; row += 1) {
+          for (var col = 0; col < COLS; col += 1) {
+            var id = blockId(row, col);
+            var angle = ((Number(source[id]) || 0) % 360 + 360) % 360;
+            if (angle) output[id] = angle;
+          }
+        }
+        return output;
+      }
+
+      function isBuiltInFabric(id) {
+        return /^builtin-\d+$/.test(String(id || ''));
+      }
+
+      function externalFabricsForSave() {
+        var list = [];
+        fabrics.forEach(function (fabric) {
+          if (!isBuiltInFabric(fabric.id)) {
+            list.push({
+              id: fabric.id,
+              name: fabric.name,
+              dataUrl: fabric.dataUrl
+            });
+          }
+        });
+        return list;
+      }
+
+      function saveDesign() {
+        var filename = promptFileName('squared-up-design', 'json');
+        if (!filename) return;
+        var design = {
+          type: DESIGN_TYPE,
+          version: 1,
+          layout: { cols: COLS, rows: ROWS, block: BLOCK, gap: GAP, border: BORDER, width: W, height: H },
+          background: normaliseHex(bgPicker.value),
+          blockFills: copyKnownBlocks(blockFills),
+          blockRotations: copyKnownRotations(blockRotations),
+          fabrics: externalFabricsForSave()
+        };
+        var json = JSON.stringify(design, null, 2);
+        triggerDownload(new Blob([json], { type: 'application/json' }), filename);
+      }
+
+      function addExternalFabricFromDesign(spec) {
+        if (!spec || !spec.id || !spec.dataUrl || fabricById(spec.id)) return;
+        var img = new Image();
+        img.src = spec.dataUrl;
+        fabrics.push({
+          id: spec.id,
+          name: spec.name || spec.id,
+          dataUrl: spec.dataUrl,
+          img: img
+        });
+        var match = String(spec.id).match(/^fabric-(\d+)$/);
+        if (match) {
+          nextFabricId = Math.max(nextFabricId, Number(match[1]) + 1);
+        }
+      }
+
+      function applyDesign(design) {
+        if (!design || design.type !== DESIGN_TYPE) {
+          window.alert('That is not a Squared Up fabric planner design file.');
+          return;
+        }
+        if (design.layout && (design.layout.cols !== COLS || design.layout.rows !== ROWS)) {
+          window.alert('That design file uses a different quilt layout.');
+          return;
+        }
+        (design.fabrics || []).forEach(addExternalFabricFromDesign);
+        var bg = normaliseHex(design.background || '#f7f1dc');
+        bgPicker.value = bg;
+        sashingRect.setAttribute('fill', bg);
+        bgHex.textContent = bg.toUpperCase();
+        blockFills = copyKnownBlocks(design.blockFills);
+        blockRotations = copyKnownRotations(design.blockRotations);
+        selectedBlockId = null;
+        selectedFabricId = null;
+        selectedPatternName.textContent = 'None';
+        renderSwatches();
+        drawBlocks();
+      }
+
+      function loadDesignFile(file) {
+        if (!file) return;
+        var reader = new FileReader();
+        reader.onload = function () {
+          try {
+            applyDesign(JSON.parse(reader.result));
+          } catch (e) {
+            window.alert('Could not read that design file.');
+          }
+        };
+        reader.readAsText(file);
       }
 
       function svgForExport() {
@@ -685,7 +819,9 @@
             var strips2 = stripRects(pos2.x, pos2.y, orientation2);
             var fabric = blockFills[id2] ? fabricById(blockFills[id2]) : null;
             if (fabric) {
-              out.push('<image x="' + pos2.x + '" y="' + pos2.y + '" width="' + BLOCK + '" height="' + BLOCK + '" preserveAspectRatio="xMidYMid slice" clip-path="url(#export-clip-' + id2 + ')" href="' + svgEscape(fabric.dataUrl) + '" xlink:href="' + svgEscape(fabric.dataUrl) + '"/>');
+              var angle = rotationForBlock(id2);
+              var transform = angle ? ' transform="rotate(' + angle + ' ' + (pos2.x + BLOCK / 2) + ' ' + (pos2.y + BLOCK / 2) + ')"' : '';
+              out.push('<image x="' + pos2.x + '" y="' + pos2.y + '" width="' + BLOCK + '" height="' + BLOCK + '" preserveAspectRatio="xMidYMid slice" clip-path="url(#export-clip-' + id2 + ')"' + transform + ' href="' + svgEscape(fabric.dataUrl) + '" xlink:href="' + svgEscape(fabric.dataUrl) + '"/>');
             } else {
               strips2.forEach(function (r) {
                 out.push('<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '" fill="#ffffff"/>');
@@ -759,7 +895,19 @@
             });
             ctx.clip();
             if (fabric && fabric.img) {
-              drawImageCover(ctx, fabric.img, pos.x * scale, pos.y * scale, BLOCK * scale, BLOCK * scale);
+              var angle = rotationForBlock(id);
+              if (angle) {
+                var cx = (pos.x + BLOCK / 2) * scale;
+                var cy = (pos.y + BLOCK / 2) * scale;
+                ctx.save();
+                ctx.translate(cx, cy);
+                ctx.rotate(angle * Math.PI / 180);
+                ctx.translate(-cx, -cy);
+                drawImageCover(ctx, fabric.img, pos.x * scale, pos.y * scale, BLOCK * scale, BLOCK * scale);
+                ctx.restore();
+              } else {
+                drawImageCover(ctx, fabric.img, pos.x * scale, pos.y * scale, BLOCK * scale, BLOCK * scale);
+              }
             } else {
               ctx.fillStyle = '#ffffff';
               strips.forEach(function (r) {
@@ -845,8 +993,14 @@
         swatchInput.value = '';
       });
       clearBlockBtn.addEventListener('click', clearSelectedBlock);
+      rotateBlockBtn.addEventListener('click', rotateSelectedSwatch);
       resetBtn.addEventListener('click', resetAll);
-      downloadSvgBtn.addEventListener('click', downloadSvg);
+      saveDesignBtn.addEventListener('click', saveDesign);
+      loadDesignBtn.addEventListener('click', function () { designInput.click(); });
+      designInput.addEventListener('change', function () {
+        if (designInput.files && designInput.files[0]) loadDesignFile(designInput.files[0]);
+        designInput.value = '';
+      });
       downloadPngBtn.addEventListener('click', function () { downloadRaster('png'); });
       downloadJpegBtn.addEventListener('click', function () { downloadRaster('jpeg'); });
 
