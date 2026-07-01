@@ -36,7 +36,8 @@
     }
 
     .stage {
-      min-height: calc(100vh - 44px);
+      height: calc(100vh - 44px);
+      min-height: 420px;
       background: rgba(255,255,255,0.74);
       border: 1px solid rgba(216,222,227,0.9);
       border-radius: 22px;
@@ -50,7 +51,7 @@
 
     .quilt-frame {
       width: 100%;
-      max-width: 780px;
+      max-width: none;
       margin: 0 auto;
       background: #fff;
       border-radius: 16px;
@@ -85,6 +86,8 @@
       align-self: start;
       position: sticky;
       top: 22px;
+      max-height: calc(100vh - 44px);
+      overflow-y: auto;
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 22px;
@@ -231,8 +234,8 @@
 
     @media (max-width: 880px) {
       main { grid-template-columns: 1fr; }
-      .stage { min-height: auto; }
-      .panel { position: static; }
+      .stage { height: auto; min-height: auto; }
+      .panel { position: static; max-height: none; overflow-y: visible; }
       .swatch-grid { grid-template-columns: repeat(4, 1fr); }
     }
 
@@ -300,9 +303,12 @@
       var W = 62;
       var H = 74;
       var EXPORT_SCALE = 40; // 40 pixels per inch: 2480 x 2960 px output
+      var FRAME_MAX_WIDTH = 780;
       var svgns = 'http://www.w3.org/2000/svg';
 
       var svg = document.getElementById('quiltSvg');
+      var stage = document.querySelector('.stage');
+      var quiltFrame = document.querySelector('.quilt-frame');
       var defs = document.getElementById('patternDefs');
       var blocksLayer = document.getElementById('blocksLayer');
       var sashingRect = document.getElementById('sashingRect');
@@ -339,6 +345,34 @@
           el.setAttribute(key, attrs[key]);
         });
         return el;
+      }
+
+      function cssNumber(style, property) {
+        var value = parseFloat(style[property]);
+        return isNaN(value) ? 0 : value;
+      }
+
+      function fitQuiltToStage() {
+        if (!stage || !quiltFrame) return;
+        var singleColumn = window.matchMedia && window.matchMedia('(max-width: 880px)').matches;
+        if (singleColumn) {
+          quiltFrame.style.width = '100%';
+          return;
+        }
+
+        var stageStyle = window.getComputedStyle(stage);
+        var frameStyle = window.getComputedStyle(quiltFrame);
+        var stagePadX = cssNumber(stageStyle, 'paddingLeft') + cssNumber(stageStyle, 'paddingRight');
+        var stagePadY = cssNumber(stageStyle, 'paddingTop') + cssNumber(stageStyle, 'paddingBottom');
+        var framePadX = cssNumber(frameStyle, 'paddingLeft') + cssNumber(frameStyle, 'paddingRight');
+        var framePadY = cssNumber(frameStyle, 'paddingTop') + cssNumber(frameStyle, 'paddingBottom');
+
+        var availableW = Math.max(100, stage.clientWidth - stagePadX);
+        var availableH = Math.max(100, stage.clientHeight - stagePadY);
+        var innerMaxW = Math.max(80, availableW - framePadX);
+        var innerMaxH = Math.max(80, availableH - framePadY);
+        var svgW = Math.min(FRAME_MAX_WIDTH - framePadX, innerMaxW, innerMaxH * (W / H));
+        quiltFrame.style.width = Math.max(120, svgW + framePadX) + 'px';
       }
 
       function normaliseHex(value) {
@@ -816,8 +850,10 @@
       downloadPngBtn.addEventListener('click', function () { downloadRaster('png'); });
       downloadJpegBtn.addEventListener('click', function () { downloadRaster('jpeg'); });
 
+      window.addEventListener('resize', fitQuiltToStage);
       loadBuiltInSwatches();
       drawBlocks();
+      fitQuiltToStage();
     })();
   </script>
 </body>
