@@ -3,17 +3,17 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Quilt Colour Picker</title>
+  <title>Squared Up Fabric Planner</title>
   <style>
     :root {
-      --bg: #f5f3ef;
+      --bg: #f4f1ec;
       --panel: #ffffff;
       --ink: #1d2328;
-      --muted: #64717b;
-      --line: #d7dde1;
+      --muted: #65727c;
+      --line: #d8dee3;
       --accent: #26343f;
       --selected: #101820;
-      --shadow: 0 18px 45px rgba(31, 41, 51, 0.14);
+      --shadow: 0 16px 40px rgba(31, 41, 51, 0.13);
     }
 
     * { box-sizing: border-box; }
@@ -23,138 +23,99 @@
       min-height: 100vh;
       font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--ink);
-      background: radial-gradient(circle at top left, #ffffff 0, var(--bg) 42rem);
+      background: radial-gradient(circle at top left, #ffffff 0, var(--bg) 48rem);
     }
 
     main {
       display: grid;
-      grid-template-columns: minmax(320px, 1fr) 320px;
+      grid-template-columns: minmax(300px, 1fr) 340px;
       gap: 22px;
-      width: min(1240px, calc(100vw - 32px));
+      width: min(1260px, calc(100vw - 28px));
       margin: 0 auto;
-      padding: 24px 0;
+      padding: 22px 0;
     }
 
     .stage {
-      min-height: calc(100vh - 48px);
-      background: rgba(255,255,255,0.72);
-      border: 1px solid rgba(215,221,225,0.8);
+      min-height: calc(100vh - 44px);
+      background: rgba(255,255,255,0.74);
+      border: 1px solid rgba(216,222,227,0.9);
       border-radius: 22px;
       box-shadow: var(--shadow);
       overflow: hidden;
-      padding: 0;
       position: relative;
-    }
-
-    .viewer {
-      width: 100%;
-      height: calc(100vh - 50px);
-      min-height: 520px;
-      overflow: auto;
-      scrollbar-width: none;
-      padding: 24px;
-      position: relative;
-      cursor: grab;
-    }
-
-    .viewer::-webkit-scrollbar { display: none; }
-    .viewer.dragging { cursor: grabbing; }
-
-    .svg-wrap {
-      aspect-ratio: 715 / 716;
+      padding: 18px;
       display: grid;
       place-items: center;
+    }
+
+    .quilt-frame {
+      width: 100%;
+      max-width: 780px;
       margin: 0 auto;
-    }
-
-    .quilt-svg {
-      width: 100%;
-      height: 100%;
-      display: block;
-      background: white;
-      border-radius: 8px;
-      user-select: none;
-      touch-action: none;
-    }
-
-    .quilt-svg .patch {
-      cursor: pointer;
-      transition: fill 120ms ease, stroke 120ms ease, stroke-width 120ms ease, opacity 120ms ease;
-    }
-
-    .quilt-svg .quilt-colour-group:hover .patch,
-    .quilt-svg .patch.quilt-colour-group:hover {
-      stroke: #4f5f68 !important;
-      stroke-width: 2.2 !important;
-    }
-
-    .quilt-svg .quilt-colour-group.selected .patch,
-    .quilt-svg .patch.quilt-colour-group.selected {
-      stroke: var(--selected) !important;
-      stroke-width: 4.2 !important;
-      stroke-linejoin: miter !important;
-      filter: drop-shadow(0 0 2px rgba(16,24,32,0.45));
-    }
-
-    .view-controls {
-      position: absolute;
-      left: 18px;
-      bottom: 18px;
-      display: flex;
-      gap: 8px;
-      padding: 8px;
-      border: 1px solid rgba(215,221,225,0.86);
-      border-radius: 16px;
-      background: rgba(255,255,255,0.92);
-      box-shadow: 0 8px 24px rgba(31, 41, 51, 0.16);
-      z-index: 5;
-      backdrop-filter: blur(6px);
-    }
-
-    .icon-button {
-      display: grid;
-      place-items: center;
-      border: 1px solid var(--line);
-      border-radius: 10px;
       background: #fff;
-      width: 40px;
-      height: 38px;
-      color: var(--ink);
-      font: inherit;
-      font-size: 1.15rem;
-      font-weight: 750;
-      cursor: pointer;
-      line-height: 1;
+      border-radius: 16px;
+      padding: 14px;
+      box-shadow: inset 0 0 0 1px rgba(216,222,227,0.7);
     }
 
-    .icon-button:hover { border-color: var(--accent); }
-    .icon-button svg { width: 20px; height: 20px; display: block; }
+    #quiltSvg {
+      width: 100%;
+      height: auto;
+      display: block;
+      touch-action: manipulation;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .block-hit {
+      fill: transparent;
+      cursor: pointer;
+    }
+
+    .selection-outline {
+      pointer-events: none;
+      fill: none;
+      stroke: var(--selected);
+      stroke-width: 0.34;
+      vector-effect: non-scaling-stroke;
+      filter: drop-shadow(0 0 0.8px rgba(16,24,32,0.65));
+    }
 
     .panel {
       align-self: start;
       position: sticky;
-      top: 24px;
+      top: 22px;
       background: var(--panel);
       border: 1px solid var(--line);
       border-radius: 22px;
       box-shadow: var(--shadow);
       padding: 20px;
-      z-index: 10;
     }
 
-    .label {
-      font-size: 0.78rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
+    h1 {
+      margin: 0 0 6px;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    .hint {
+      margin: 0 0 18px;
       color: var(--muted);
-      font-weight: 700;
+      font-size: 0.92rem;
+      line-height: 1.42;
+    }
+
+    .section-title {
+      margin: 18px 0 10px;
+      font-weight: 750;
+      font-size: 0.98rem;
     }
 
     .colour-row {
       display: flex;
       align-items: center;
       gap: 12px;
-      margin: 0 0 20px;
+      margin: 12px 0 10px;
     }
 
     input[type="color"] {
@@ -167,47 +128,68 @@
       cursor: pointer;
     }
 
-    .colour-text { flex: 1; min-width: 0; }
+    .label {
+      display: block;
+      font-size: 0.78rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      font-weight: 750;
+    }
 
-    #hexValue {
+    #bgHex,
+    #selectedPatternName {
       display: block;
       margin-top: 3px;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
       color: var(--muted);
-      font-size: 0.92rem;
+      font-size: 0.9rem;
+      overflow-wrap: anywhere;
     }
 
-    .section-title {
-      margin: 18px 0 10px;
-      font-weight: 700;
-    }
-
-    .palette-tools { margin-bottom: 10px; }
-
-    .recent-grid {
+    .swatch-tools {
       display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 9px;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .swatch-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 10px;
     }
 
     .swatch {
       position: relative;
-      height: 42px;
-      border: 1px solid var(--line);
-      border-radius: 12px;
-      background:
-        linear-gradient(45deg, #eee 25%, transparent 25%),
-        linear-gradient(-45deg, #eee 25%, transparent 25%),
-        linear-gradient(45deg, transparent 75%, #eee 75%),
-        linear-gradient(-45deg, transparent 75%, #eee 75%);
-      background-size: 16px 16px;
-      background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+      aspect-ratio: 1 / 1;
+      border: 2px solid var(--line);
+      border-radius: 14px;
+      background: #f3f3f3;
+      background-size: cover;
+      background-position: center;
       cursor: pointer;
       overflow: hidden;
+      min-height: 76px;
     }
 
-    .swatch[disabled] { cursor: default; opacity: 0.48; }
-    .swatch:not([disabled]):hover { outline: 2px solid var(--accent); outline-offset: 2px; }
+    .swatch.selected {
+      border-color: var(--selected);
+      box-shadow: 0 0 0 3px rgba(16,24,32,0.14);
+    }
+
+    .swatch-name {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      padding: 4px 6px;
+      font-size: 0.68rem;
+      background: rgba(255,255,255,0.86);
+      color: var(--ink);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
+    }
 
     .buttons {
       display: grid;
@@ -227,1874 +209,616 @@
       cursor: pointer;
     }
 
-    button.action:hover { border-color: var(--accent); }
-    button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+    button.action:hover,
+    button.action:focus-visible {
+      border-color: var(--accent);
+      outline: none;
+    }
 
-    @media (max-width: 860px) {
+    button.primary {
+      grid-column: 1 / -1;
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    .small-note {
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 0.8rem;
+      line-height: 1.38;
+    }
+
+    @media (max-width: 880px) {
       main { grid-template-columns: 1fr; }
-      .stage { min-height: 60vh; }
-      .viewer { height: 60vh; min-height: 360px; }
+      .stage { min-height: auto; }
       .panel { position: static; }
+      .swatch-grid { grid-template-columns: repeat(4, 1fr); }
+    }
+
+    @media (max-width: 520px) {
+      main { width: min(100vw - 16px, 1260px); padding: 8px 0; gap: 12px; }
+      .stage, .panel { border-radius: 16px; padding: 12px; }
+      .quilt-frame { padding: 8px; border-radius: 12px; }
+      .swatch-grid { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
 <body>
   <main>
-    <section class="stage" aria-label="Quilt pattern">
-      <div id="viewer" class="viewer">
-        <div id="svgWrap" class="svg-wrap">
-<svg id="quiltSvg" class="quilt-svg"
-   width="715"
-   height="716"
-   viewBox="0 0 715 716"
-   version="1.1"
-   data-original-id="svg200"
-   sodipodi:docname="quilt_patches.svg"
-   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg"
-   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
-   xmlns:cc="http://creativecommons.org/ns#"
-   xmlns:dc="http://purl.org/dc/elements/1.1/">
-  <defs
-     id="defs204" />
-  <sodipodi:namedview
-     id="namedview202"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     inkscape:pageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     showgrid="false"
-     inkscape:snap-global="false"
-     inkscape:zoom="0.71006952"
-     inkscape:cx="299.97063"
-     inkscape:cy="457.70166"
-     inkscape:window-width="1920"
-     inkscape:window-height="1094"
-     inkscape:window-x="-11"
-     inkscape:window-y="-11"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg200" />
-  <title
-     id="title2">Quilt patch polygons rectified</title>
-  <desc
-     id="desc4">Each patch is an idealised rectangle or right-angled triangle.</desc>
-  <style
-     id="style6"><![CDATA[
-    .patch { fill: #ffffff; stroke: #a8b2b8; stroke-width: 1.2; stroke-linejoin: miter; vector-effect: non-scaling-stroke; }
-    .background { fill: #ffffff; }
-  ]]></style>
-  <rect
-     class="background"
-     x="0"
-     y="0"
-     width="715"
-     height="716"
-     id="rect8"
-     style="fill:#ffffff;fill-opacity:1" />
-  <polygon
-     id="patch-095"
-     class="patch"
-     points="341,341 368,341 368,368 341,368 "
-     style="fill:#ffffff;fill-opacity:1" />
-  <g
-     id="g3259"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-080"
-       class="patch"
-       points="260,260 341,260 341,341 260,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-081"
-       class="patch"
-       points="368,260 449,260 449,341 368,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-109"
-       class="patch"
-       points="260,368 341,368 341,449 260,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-110"
-       class="patch"
-       points="368,368 449,368 449,449 368,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g7155"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-058"
-       class="patch"
-       points="233,233 260,233 260,260 233,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-059"
-       class="patch"
-       points="449,233 476,233 476,260 449,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-131"
-       class="patch"
-       points="233,449 260,449 260,476 233,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-132"
-       class="patch"
-       points="449,449 476,449 476,476 449,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g2751"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-128"
-       class="patch"
-       points="449,449 449,476 422,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-061"
-       class="patch"
-       points="260,233 260,260 287,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-062"
-       class="patch"
-       points="287,233 287,260 314,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-063"
-       class="patch"
-       points="314,233 314,260 341,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-064"
-       class="patch"
-       points="395,233 368,260 395,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-065"
-       class="patch"
-       points="422,233 395,260 422,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-066"
-       class="patch"
-       points="449,233 422,260 449,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-070"
-       class="patch"
-       points="233,260 260,260 260,287 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-071"
-       class="patch"
-       points="449,260 476,260 449,287 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-078"
-       class="patch"
-       points="233,287 260,287 260,314 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-079"
-       class="patch"
-       points="449,287 476,287 449,314 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-088"
-       class="patch"
-       points="233,314 260,314 260,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-089"
-       class="patch"
-       points="449,314 476,314 449,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-100"
-       class="patch"
-       points="260,368 233,395 260,395 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-101"
-       class="patch"
-       points="449,368 449,395 476,395 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-111"
-       class="patch"
-       points="449,395 449,422 476,422 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-112"
-       class="patch"
-       points="260,395 233,422 260,422 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-119"
-       class="patch"
-       points="260,422 233,449 260,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-120"
-       class="patch"
-       points="449,422 449,449 476,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-123"
-       class="patch"
-       points="260,449 287,449 260,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-124"
-       class="patch"
-       points="287,449 314,449 287,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-125"
-       class="patch"
-       points="314,449 341,449 314,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-126"
-       class="patch"
-       points="368,449 395,449 395,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-127"
-       class="patch"
-       points="395,449 422,449 422,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g7235"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-052"
-       class="patch"
-       points="287,233 287,260 260,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-053"
-       class="patch"
-       points="314,233 314,260 287,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-054"
-       class="patch"
-       points="341,233 341,260 314,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-055"
-       class="patch"
-       points="395,233 368,260 368,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-056"
-       class="patch"
-       points="422,233 395,260 395,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-057"
-       class="patch"
-       points="449,233 422,260 422,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-073"
-       class="patch"
-       points="233,287 260,287 233,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-074"
-       class="patch"
-       points="449,287 476,287 476,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-083"
-       class="patch"
-       points="233,314 260,314 233,287 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-084"
-       class="patch"
-       points="449,314 476,314 476,287 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-092"
-       class="patch"
-       points="233,341 260,341 233,314 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-093"
-       class="patch"
-       points="449,341 476,341 476,314 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-097"
-       class="patch"
-       points="260,368 233,395 233,368 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-098"
-       class="patch"
-       points="476,368 476,395 449,368 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-106"
-       class="patch"
-       points="260,395 233,422 233,395 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-107"
-       class="patch"
-       points="476,395 476,422 449,395 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-116"
-       class="patch"
-       points="260,422 233,449 233,422 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-117"
-       class="patch"
-       points="476,422 476,449 449,422 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-133"
-       class="patch"
-       points="260,476 287,476 287,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-134"
-       class="patch"
-       points="287,476 314,476 314,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-135"
-       class="patch"
-       points="314,476 341,476 341,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-136"
-       class="patch"
-       points="368,476 395,476 368,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-137"
-       class="patch"
-       points="395,476 422,476 395,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-138"
-       class="patch"
-       points="422,449 422,476 449,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g4901"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-043"
-       class="patch"
-       points="233,179 341,179 341,233 233,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-044"
-       class="patch"
-       points="368,179 530,179 530,233 368,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-068"
-       class="patch"
-       points="179,179 233,179 233,341 179,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-076"
-       class="patch"
-       points="476,233 530,233 530,341 476,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-114"
-       class="patch"
-       points="179,368 233,368 233,476 179,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-122"
-       class="patch"
-       points="476,368 530,368 530,530 476,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-145"
-       class="patch"
-       points="179,476 341,476 341,530 179,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-146"
-       class="patch"
-       points="368,476 476,476 476,530 368,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g6217"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-031"
-       class="patch"
-       points="179,179 233,179 179,125 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-032"
-       class="patch"
-       points="233,125 233,179 287,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-033"
-       class="patch"
-       points="287,125 287,179 341,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-034"
-       class="patch"
-       points="422,125 368,179 422,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-035"
-       class="patch"
-       points="476,125 422,179 476,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-036"
-       class="patch"
-       points="530,125 476,179 530,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-040"
-       class="patch"
-       points="125,179 179,179 179,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-041"
-       class="patch"
-       points="530,179 584,179 530,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-060"
-       class="patch"
-       points="125,233 179,233 179,287 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-067"
-       class="patch"
-       points="530,233 584,233 530,287 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-082"
-       class="patch"
-       points="125,287 179,287 179,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-085"
-       class="patch"
-       points="530,287 584,287 530,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-105"
-       class="patch"
-       points="179,368 125,422 179,422 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-108"
-       class="patch"
-       points="530,368 530,422 584,422 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-129"
-       class="patch"
-       points="530,422 530,476 584,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-130"
-       class="patch"
-       points="179,422 125,476 179,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-149"
-       class="patch"
-       points="179,476 125,530 179,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-150"
-       class="patch"
-       points="530,476 530,530 584,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-152"
-       class="patch"
-       points="179,530 233,530 179,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-153"
-       class="patch"
-       points="233,530 287,530 233,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-154"
-       class="patch"
-       points="287,530 341,530 287,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-155"
-       class="patch"
-       points="368,530 422,530 422,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-156"
-       class="patch"
-       points="422,530 476,530 476,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-157"
-       class="patch"
-       points="476,530 530,530 530,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g4351"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-028"
-       class="patch"
-       points="125,125 179,125 179,179 125,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-029"
-       class="patch"
-       points="530,125 584,125 584,179 530,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-161"
-       class="patch"
-       points="125,530 179,530 179,584 125,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-162"
-       class="patch"
-       points="530,530 584,530 584,584 530,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g3019"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-037"
-       class="patch"
-       points="368,341 341,341 341,0 368,0 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-094"
-       class="patch"
-       points="341,368 0,368 0,341 341,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-096"
-       class="patch"
-       points="714,368 368,368 368,341 714,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-159"
-       class="patch"
-       points="368,715 341,715 341,368 368,368 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g6915"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-021"
-       class="patch"
-       points="179,125 233,125 233,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-022"
-       class="patch"
-       points="233,125 287,125 287,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-023"
-       class="patch"
-       points="287,125 341,125 341,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-024"
-       class="patch"
-       points="368,125 422,125 368,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-025"
-       class="patch"
-       points="422,125 476,125 422,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-026"
-       class="patch"
-       points="476,125 530,125 476,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-046"
-       class="patch"
-       points="125,179 125,233 179,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-047"
-       class="patch"
-       points="584,179 530,233 584,233 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-069"
-       class="patch"
-       points="125,233 125,287 179,287 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-072"
-       class="patch"
-       points="584,233 530,287 584,287 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-090"
-       class="patch"
-       points="125,287 125,341 179,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-091"
-       class="patch"
-       points="584,287 530,341 584,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-099"
-       class="patch"
-       points="125,368 179,368 125,422 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-102"
-       class="patch"
-       points="530,368 584,368 584,422 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-118"
-       class="patch"
-       points="125,422 179,422 125,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-121"
-       class="patch"
-       points="530,422 584,422 584,476 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-142"
-       class="patch"
-       points="125,476 179,476 125,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-143"
-       class="patch"
-       points="530,476 584,476 584,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-164"
-       class="patch"
-       points="233,530 179,584 233,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-165"
-       class="patch"
-       points="287,530 233,584 287,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-166"
-       class="patch"
-       points="341,530 287,584 341,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-167"
-       class="patch"
-       points="368,530 368,584 422,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-168"
-       class="patch"
-       points="422,530 422,584 476,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-169"
-       class="patch"
-       points="476,530 476,584 530,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g4201"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-017"
-       class="patch"
-       points="125,98 341,98 341,125 125,125 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-018"
-       class="patch"
-       points="368,98 611,98 611,125 368,125 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-048"
-       class="patch"
-       points="98,98 125,98 125,341 98,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-049"
-       class="patch"
-       points="584,125 611,125 611,341 584,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-141"
-       class="patch"
-       points="98,368 125,368 125,584 98,584 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-144"
-       class="patch"
-       points="584,368 611,368 611,611 584,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-172"
-       class="patch"
-       points="98,584 341,584 341,611 98,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-173"
-       class="patch"
-       points="368,584 584,584 584,611 368,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g1399"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-115"
-       class="patch"
-       points="611,449 692,449 611,368 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-011"
-       class="patch"
-       points="98,17 98,98 179,98 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-012"
-       class="patch"
-       points="179,17 179,98 260,98 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-013"
-       class="patch"
-       points="260,17 260,98 341,98 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-014"
-       class="patch"
-       points="449,17 368,98 449,98 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-015"
-       class="patch"
-       points="530,17 449,98 530,98 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-016"
-       class="patch"
-       points="611,17 530,98 611,98 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-019"
-       class="patch"
-       points="17,98 98,98 98,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-020"
-       class="patch"
-       points="611,98 692,98 611,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-042"
-       class="patch"
-       points="17,179 98,179 98,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-045"
-       class="patch"
-       points="611,179 692,179 611,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-075"
-       class="patch"
-       points="17,260 98,260 98,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-077"
-       class="patch"
-       points="611,260 692,260 611,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-113"
-       class="patch"
-       points="98,368 17,449 98,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-147"
-       class="patch"
-       points="98,449 17,530 98,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-148"
-       class="patch"
-       points="611,449 611,530 692,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-170"
-       class="patch"
-       points="98,530 17,611 98,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-171"
-       class="patch"
-       points="611,530 611,611 692,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-174"
-       class="patch"
-       points="98,611 179,611 98,692 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-175"
-       class="patch"
-       points="179,611 260,611 179,692 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-176"
-       class="patch"
-       points="260,611 341,611 260,692 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-177"
-       class="patch"
-       points="368,611 449,611 449,692 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-178"
-       class="patch"
-       points="449,611 530,611 530,692 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-179"
-       class="patch"
-       points="530,611 611,611 611,692 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g3949"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-009"
-       class="patch"
-       points="611,17 692,17 692,98 611,98 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-010"
-       class="patch"
-       points="17,17 98,17 98,98 17,98 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-180"
-       class="patch"
-       points="17,611 98,611 98,692 17,692 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-181"
-       class="patch"
-       points="611,611 692,611 692,692 611,692 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g4119"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-003"
-       class="patch"
-       points="179,17 179,98 98,17 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-004"
-       class="patch"
-       points="260,17 260,98 179,17 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-005"
-       class="patch"
-       points="341,17 341,98 260,17 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-006"
-       class="patch"
-       points="449,17 368,98 368,17 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-007"
-       class="patch"
-       points="530,17 449,98 449,17 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-008"
-       class="patch"
-       points="611,17 530,98 530,17 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-027"
-       class="patch"
-       points="17,179 98,179 17,98 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-030"
-       class="patch"
-       points="611,179 692,179 692,98 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-050"
-       class="patch"
-       points="17,260 98,260 17,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-051"
-       class="patch"
-       points="611,260 692,260 692,179 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-086"
-       class="patch"
-       points="17,341 98,341 17,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-087"
-       class="patch"
-       points="611,341 692,341 692,260 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-103"
-       class="patch"
-       points="98,368 17,449 17,368 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-104"
-       class="patch"
-       points="692,368 692,449 611,368 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-139"
-       class="patch"
-       points="98,449 17,530 17,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-140"
-       class="patch"
-       points="692,449 692,530 611,449 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-160"
-       class="patch"
-       points="98,530 17,611 17,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-163"
-       class="patch"
-       points="692,530 692,611 611,530 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-182"
-       class="patch"
-       points="98,692 179,692 179,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-183"
-       class="patch"
-       points="179,692 260,692 260,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-184"
-       class="patch"
-       points="260,692 341,692 341,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-185"
-       class="patch"
-       points="368,692 449,692 368,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-186"
-       class="patch"
-       points="449,692 530,692 449,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-187"
-       class="patch"
-       points="530,692 611,692 530,611 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <g
-     id="g3013"
-     style="fill:#ffffff;fill-opacity:1">
-    <polygon
-       id="patch-001"
-       class="patch"
-       points="17,0 341,0 341,17 17,17 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-002"
-       class="patch"
-       points="368,0 714,0 714,17 368,17 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-038"
-       class="patch"
-       points="0,0 17,0 17,341 0,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-039"
-       class="patch"
-       points="692,17 714,17 714,341 692,341 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-151"
-       class="patch"
-       points="0,368 17,368 17,692 0,692 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-158"
-       class="patch"
-       points="692,368 714,368 714,715 692,715 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-188"
-       class="patch"
-       points="0,692 341,692 341,715 0,715 "
-       style="fill:#ffffff;fill-opacity:1" />
-    <polygon
-       id="patch-189"
-       class="patch"
-       points="368,692 692,692 692,715 368,715 "
-       style="fill:#ffffff;fill-opacity:1" />
-  </g>
-  <metadata
-     id="metadata1021">
-    <rdf:RDF>
-      <cc:Work
-         rdf:about="">
-        <dc:title>Quilt patch polygons rectified</dc:title>
-      </cc:Work>
-    </rdf:RDF>
-  </metadata>
-</svg>
-
-        </div>
-      </div>
-      <div class="view-controls" aria-label="View controls">
-        <button id="zoomOut" class="icon-button" type="button" aria-label="Zoom out">−</button>
-        <button id="zoomIn" class="icon-button" type="button" aria-label="Zoom in">+</button>
-        <button id="fitView" class="icon-button" type="button" aria-label="Fit to window" title="Fit to window">
-          <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-            <path d="M5 9V5h4M15 5h4v4M19 15v4h-4M9 19H5v-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
+    <section class="stage" aria-label="Quilt mock-up">
+      <div class="quilt-frame">
+        <svg id="quiltSvg" viewBox="0 0 62 74" aria-label="5 by 6 Squared Up quilt planner" role="img">
+          <defs id="patternDefs"></defs>
+          <rect id="sashingRect" x="0" y="0" width="62" height="74" fill="#f7f1dc"></rect>
+          <g id="blocksLayer"></g>
+        </svg>
       </div>
     </section>
 
-    <aside class="panel" aria-label="Colour controls">
+    <aside class="panel" aria-label="Fabric controls">
+      <h1>Squared Up fabric planner</h1>
+      <p class="hint">Upload pattern photos, select a pattern swatch, then tap quilt blocks to apply it. One pattern per 10&quot; block. Each block has a 4&quot; strip, two 2&quot; strips, and 1&quot; gaps.</p>
+
+      <div class="section-title">Plain background / sashing</div>
       <div class="colour-row">
-        <input id="colourPicker" type="color" value="#d8a24a" aria-label="Choose patch colour">
-        <div class="colour-text">
-          <span class="label">Colour</span>
-          <span id="hexValue">#D8A24A</span>
+        <input id="bgPicker" type="color" value="#f7f1dc" aria-label="Choose background and sashing colour">
+        <div>
+          <span class="label">Background</span>
+          <span id="bgHex">#F7F1DC</span>
         </div>
       </div>
 
-      <div class="section-title">Recent colours</div>
-      <div id="recentColours" class="recent-grid" aria-label="Recent colours"></div>
-
-      <div class="section-title">Extract palette from image</div>
-      <div class="palette-tools">
-        <button id="extractPaletteBtn" class="action" type="button">Open PNG/JPEG</button>
+      <div class="section-title">Pattern picker</div>
+      <div class="swatch-tools">
+        <button id="uploadSwatchesBtn" class="action" type="button">Upload swatches</button>
+        <input id="swatchInput" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" multiple hidden>
       </div>
-      <div id="extractedColours" class="recent-grid" aria-label="Extracted colours"></div>
+      <span class="label" style="margin-top:12px;">Selected pattern</span>
+      <span id="selectedPatternName">None</span>
+      <div id="swatchGrid" class="swatch-grid" aria-label="Uploaded pattern swatches"></div>
 
       <div class="buttons">
-        <button id="clearSelected" class="action" type="button">Clear colour</button>
-        <button id="resetAll" class="action" type="button">Reset all</button>
-        <button id="saveSvg" class="action" type="button">Save SVG</button>
-        <button id="loadSvg" class="action" type="button">Load SVG</button>
-        <button id="downloadPng" class="action primary" type="button">Download PNG</button>
-        <button id="downloadJpeg" class="action primary" type="button">Download JPEG</button>
+        <button id="clearBlockBtn" class="action" type="button">Clear block</button>
+        <button id="resetBtn" class="action" type="button">Reset all</button>
+        <button id="downloadSvgBtn" class="action" type="button">Download SVG</button>
+        <button id="downloadJpegBtn" class="action" type="button">Download JPEG</button>
+        <button id="downloadPngBtn" class="action primary" type="button">Download PNG</button>
       </div>
 
-      <input id="loadSvgInput" type="file" accept=".svg,image/svg+xml" hidden>
-      <input id="extractImageInput" type="file" accept="image/png,image/jpeg,.png,.jpg,.jpeg" hidden>
+      <p class="small-note">Layout: 5 × 6 blocks, 10&quot; blocks, 2&quot; gaps, 2&quot; outer border. Inside each block: 4&quot; strip + 1&quot; gap + 2&quot; strip + 1&quot; gap + 2&quot; strip.</p>
     </aside>
   </main>
 
   <script>
     (function () {
+      var COLS = 5;
+      var ROWS = 6;
+      var BLOCK = 10;
+      var GAP = 2;
+      var BORDER = 2;
+      var W = 62;
+      var H = 74;
+      var EXPORT_SCALE = 40; // 40 pixels per inch: 2480 x 2960 px output
+      var svgns = 'http://www.w3.org/2000/svg';
+
       var svg = document.getElementById('quiltSvg');
-      var viewer = document.getElementById('viewer');
-      var svgWrap = document.getElementById('svgWrap');
-      var colourPicker = document.getElementById('colourPicker');
-      var hexValue = document.getElementById('hexValue');
-      var recentColoursEl = document.getElementById('recentColours');
-      var extractedColoursEl = document.getElementById('extractedColours');
-      var clearSelectedBtn = document.getElementById('clearSelected');
-      var resetAllBtn = document.getElementById('resetAll');
-      var saveSvgBtn = document.getElementById('saveSvg');
-      var loadSvgBtn = document.getElementById('loadSvg');
-      var downloadPngBtn = document.getElementById('downloadPng');
-      var downloadJpegBtn = document.getElementById('downloadJpeg');
-      var loadSvgInput = document.getElementById('loadSvgInput');
-      var extractPaletteBtn = document.getElementById('extractPaletteBtn');
-      var extractImageInput = document.getElementById('extractImageInput');
-      var zoomOutBtn = document.getElementById('zoomOut');
-      var zoomInBtn = document.getElementById('zoomIn');
-      var fitViewBtn = document.getElementById('fitView');
+      var defs = document.getElementById('patternDefs');
+      var blocksLayer = document.getElementById('blocksLayer');
+      var sashingRect = document.getElementById('sashingRect');
+      var bgPicker = document.getElementById('bgPicker');
+      var bgHex = document.getElementById('bgHex');
+      var uploadSwatchesBtn = document.getElementById('uploadSwatchesBtn');
+      var swatchInput = document.getElementById('swatchInput');
+      var swatchGrid = document.getElementById('swatchGrid');
+      var selectedPatternName = document.getElementById('selectedPatternName');
+      var clearBlockBtn = document.getElementById('clearBlockBtn');
+      var resetBtn = document.getElementById('resetBtn');
+      var downloadSvgBtn = document.getElementById('downloadSvgBtn');
+      var downloadPngBtn = document.getElementById('downloadPngBtn');
+      var downloadJpegBtn = document.getElementById('downloadJpegBtn');
 
-      var RECENT_KEY = 'quilt-colour-picker-recent-v1';
-      var MAX_RECENT = 10;
-      var MAX_EXTRACTED = 6;
-      var VIEWBOX_WIDTH = 715;
-      var VIEWBOX_HEIGHT = 716;
-      var SAVE_MARKER = 'quilt-colour-picker-save-v2';
-      var PATTERN_ID = 'quilt-pattern-715x716-grouped-v1';
-      var DEFAULT_BASE_NAME = 'coloured-quilt';
-      var MIN_ZOOM = 0.5;
-      var MAX_ZOOM = 6;
-      var ZOOM_FACTOR = 1.15;
-
-      var groups = [];
-      var selectedGroup = null;
-      var zoom = 1;
-      var fitWidth = VIEWBOX_WIDTH;
-      var suppressClick = false;
-      var panState = null;
-      var touchState = null;
-      var extractedColours = [];
-
-      function pad2(value) {
-        var text = String(value);
-        return text.length >= 2 ? text : '0' + text;
+      var fabrics = [];
+      var selectedFabricId = null;
+      var selectedBlockId = null;
+      var blockFills = {};
+      var nextFabricId = 1;
+      var builtInSwatches = [];
+      for (var builtIndex = 1; builtIndex <= 20; builtIndex += 1) {
+        var suffix = builtIndex < 10 ? '0' + builtIndex : String(builtIndex);
+        builtInSwatches.push({
+          id: 'builtin-' + suffix,
+          name: 'Fabric ' + suffix,
+          sources: ['swatches/fabric' + suffix + '.jpeg', 'fabric' + suffix + '.jpeg']
+        });
       }
 
-      function getClassText(el) {
-        if (!el) return '';
-        var value = el.getAttribute ? el.getAttribute('class') : '';
-        return value || '';
-      }
-
-      function hasClass(el, className) {
-        if (!el) return false;
-        if (el.classList && el.classList.contains) return el.classList.contains(className);
-        return (' ' + getClassText(el) + ' ').indexOf(' ' + className + ' ') !== -1;
-      }
-
-      function addClass(el, className) {
-        if (!el) return;
-        if (el.classList && el.classList.add) {
-          el.classList.add(className);
-          return;
-        }
-        if (!hasClass(el, className)) {
-          var current = getClassText(el);
-          el.setAttribute('class', current ? current + ' ' + className : className);
-        }
-      }
-
-      function removeClass(el, className) {
-        if (!el) return;
-        if (el.classList && el.classList.remove) {
-          el.classList.remove(className);
-          return;
-        }
-        var cleaned = (' ' + getClassText(el) + ' ').replace(' ' + className + ' ', ' ');
-        el.setAttribute('class', cleaned.replace(/^\s+|\s+$/g, '').replace(/\s+/g, ' '));
-      }
-
-      function findColourGroup(el) {
-        while (el && el !== svg && el.nodeType === 1) {
-          if (hasClass(el, 'quilt-colour-group')) return el;
-          el = el.parentNode;
-        }
-        return null;
-      }
-
-      function parsePoints(pointsText) {
-        var nums = String(pointsText || '').match(/-?\d+(?:\.\d+)?/g) || [];
-        var points = [];
-        for (var i = 0; i + 1 < nums.length; i += 2) {
-          points.push({ x: Number(nums[i]), y: Number(nums[i + 1]) });
-        }
-        return points;
-      }
-
-      function pointInPolygon(x, y, points) {
-        var inside = false;
-        for (var i = 0, j = points.length - 1; i < points.length; j = i++) {
-          var xi = points[i].x, yi = points[i].y;
-          var xj = points[j].x, yj = points[j].y;
-          var intersect = ((yi > y) !== (yj > y)) &&
-            (x < (xj - xi) * (y - yi) / ((yj - yi) || 0.000001) + xi);
-          if (intersect) inside = !inside;
-        }
-        return inside;
-      }
-
-      function groupFromPoint(clientX, clientY) {
-        var element = null;
-        if (document.elementFromPoint) element = document.elementFromPoint(clientX, clientY);
-        var group = findColourGroup(element);
-        if (group) return group;
-
-        var rect = svg.getBoundingClientRect();
-        if (!rect || !rect.width || !rect.height) return null;
-        var x = (clientX - rect.left) * VIEWBOX_WIDTH / rect.width;
-        var y = (clientY - rect.top) * VIEWBOX_HEIGHT / rect.height;
-        var patches = svg.querySelectorAll('.patch');
-        for (var i = patches.length - 1; i >= 0; i -= 1) {
-          var patch = patches[i];
-          if (pointInPolygon(x, y, parsePoints(patch.getAttribute('points')))) {
-            return findColourGroup(patch) || (hasClass(patch, 'quilt-colour-group') ? patch : null);
-          }
-        }
-        return null;
-      }
-
-      function setupGroups() {
-        var children = svg.children;
-        var index = 1;
-        groups = [];
-        for (var i = 0; i < children.length; i += 1) {
-          var el = children[i];
-          var tag = String(el.tagName || '').toLowerCase();
-          var isGroup = tag === 'g';
-          var isCentrePatch = tag === 'polygon' && hasClass(el, 'patch');
-          if (isGroup || isCentrePatch) {
-            groups.push(el);
-            addClass(el, 'quilt-colour-group');
-            el.setAttribute('data-group-id', el.id || ('group-' + index));
-            el.setAttribute('data-group-index', String(index));
-            if (!el.getAttribute('data-group-name')) {
-              el.setAttribute('data-group-name', el.id === 'patch-095' ? 'Centre patch' : ('SVG group ' + index));
-            }
-            index += 1;
-          }
-        }
-      }
-
-      function patchesFor(group) {
-        if (!group) return [];
-        if (hasClass(group, 'patch')) return [group];
-        return Array.prototype.slice.call(group.querySelectorAll('.patch'));
-      }
-
-      function rgbToHex(value) {
-        if (!value) return null;
-        if (value.charAt(0) === '#') return value;
-        var match = String(value).match(/rgba?\((\d+),\s*(\d+),\s*(\d+)/i);
-        if (!match) return null;
-        var parts = [match[1], match[2], match[3]];
-        var output = '#';
-        for (var i = 0; i < parts.length; i += 1) {
-          output += pad2(Number(parts[i]).toString(16));
-        }
-        return output;
+      function createSvgEl(name, attrs) {
+        var el = document.createElementNS(svgns, name);
+        Object.keys(attrs || {}).forEach(function (key) {
+          el.setAttribute(key, attrs[key]);
+        });
+        return el;
       }
 
       function normaliseHex(value) {
-        if (!value) return '#ffffff';
-        var v = String(value).trim().toLowerCase();
+        var v = String(value || '#ffffff').trim().toLowerCase();
         if (/^#[0-9a-f]{6}$/.test(v)) return v;
         if (/^#[0-9a-f]{3}$/.test(v)) {
           return '#' + v.charAt(1) + v.charAt(1) + v.charAt(2) + v.charAt(2) + v.charAt(3) + v.charAt(3);
         }
-        var fromRgb = rgbToHex(v);
-        if (fromRgb && /^#[0-9a-f]{6}$/i.test(fromRgb)) return fromRgb.toLowerCase();
         return '#ffffff';
       }
 
-      function setPickerColour(value) {
-        var hex = normaliseHex(value);
-        colourPicker.value = hex;
-        hexValue.textContent = hex.toUpperCase();
+      function blockId(row, col) {
+        return 'block-' + row + '-' + col;
       }
 
-      function currentFill(group) {
-        var patches = patchesFor(group);
-        var patch = patches.length ? patches[0] : null;
-        if (!patch) return colourPicker.value;
-        return normaliseHex(patch.style.fill || window.getComputedStyle(patch).fill || '#ffffff');
+      function blockPosition(row, col) {
+        return {
+          x: BORDER + col * (BLOCK + GAP),
+          y: BORDER + row * (BLOCK + GAP)
+        };
       }
 
-      function deselectGroup() {
-        if (selectedGroup) removeClass(selectedGroup, 'selected');
-        selectedGroup = null;
-      }
-
-      function selectGroup(group) {
-        if (selectedGroup) removeClass(selectedGroup, 'selected');
-        selectedGroup = group;
-        addClass(selectedGroup, 'selected');
-        setPickerColour(currentFill(group));
-      }
-
-      function toggleGroup(group) {
-        if (selectedGroup === group) deselectGroup();
-        else selectGroup(group);
-      }
-
-      function storageGet(key) {
-        try { return window.localStorage.getItem(key); } catch (e) { return null; }
-      }
-
-      function storageSet(key, value) {
-        try { window.localStorage.setItem(key, value); } catch (e) {}
-      }
-
-      function getRecentColours() {
-        var raw = storageGet(RECENT_KEY) || '[]';
-        var parsed;
-        try { parsed = JSON.parse(raw); } catch (e) { parsed = []; }
-        if (!Array.isArray(parsed)) parsed = [];
-        var output = [];
-        for (var i = 0; i < parsed.length && output.length < MAX_RECENT; i += 1) {
-          var hex = normaliseHex(parsed[i]);
-          if (/^#[0-9a-f]{6}$/i.test(hex)) output.push(hex);
+      function fabricById(id) {
+        for (var i = 0; i < fabrics.length; i += 1) {
+          if (fabrics[i].id === id) return fabrics[i];
         }
-        return output;
+        return null;
       }
 
-      function saveRecentColours(colours) {
-        storageSet(RECENT_KEY, JSON.stringify(colours.slice(0, MAX_RECENT)));
-      }
-
-      function addRecentColour(colour) {
-        var hex = normaliseHex(colour);
-        var old = getRecentColours();
-        var merged = [hex];
-        for (var i = 0; i < old.length && merged.length < MAX_RECENT; i += 1) {
-          if (old[i].toLowerCase() !== hex.toLowerCase()) merged.push(old[i]);
+      function stripRects(x, y, orientation) {
+        if (orientation === 'vertical') {
+          return [
+            { x: x,     y: y, w: 4,  h: BLOCK },
+            { x: x + 5, y: y, w: 2,  h: BLOCK },
+            { x: x + 8, y: y, w: 2,  h: BLOCK }
+          ];
         }
-        saveRecentColours(merged);
-        renderRecentColours();
+        // Horizontal blocks matching the top-left block are flipped vertically:
+        // 2" strip, 1" gap, 2" strip, 1" gap, 4" strip.
+        return [
+          { x: x, y: y,     w: BLOCK, h: 2 },
+          { x: x, y: y + 3, w: BLOCK, h: 2 },
+          { x: x, y: y + 6, w: BLOCK, h: 4 }
+        ];
       }
 
-      function buildSwatch(colour, label, onClick) {
-        var button = document.createElement('button');
-        button.type = 'button';
-        button.className = 'swatch';
-        if (!colour) {
-          button.disabled = true;
-          button.title = 'Empty colour slot';
-          button.setAttribute('aria-label', 'Empty colour slot');
-          return button;
-        }
-        var hex = normaliseHex(colour);
-        button.style.background = hex;
-        button.title = label + ' ' + hex.toUpperCase();
-        button.setAttribute('aria-label', label + ' ' + hex.toUpperCase());
-        button.addEventListener('click', function () { onClick(hex); });
-        button.addEventListener('touchend', function (event) { event.preventDefault(); onClick(hex); }, false);
-        return button;
+      function clearGeneratedClips() {
+        var old = defs.querySelectorAll('.block-clip');
+        Array.prototype.forEach.call(old, function (el) {
+          el.parentNode.removeChild(el);
+        });
       }
 
-      function renderRecentColours() {
-        recentColoursEl.innerHTML = '';
-        var colours = getRecentColours();
-        for (var i = 0; i < MAX_RECENT; i += 1) {
-          recentColoursEl.appendChild(buildSwatch(colours[i], 'Use recent colour', function (colour) { applyColour(colour, true); }));
-        }
+      function drawEmptyStrips(g, strips) {
+        strips.forEach(function (r) {
+          g.appendChild(createSvgEl('rect', {
+            class: 'strip-fill',
+            x: r.x,
+            y: r.y,
+            width: r.w,
+            height: r.h,
+            fill: '#ffffff'
+          }));
+        });
       }
 
-      function renderExtractedColours() {
-        extractedColoursEl.innerHTML = '';
-        for (var i = 0; i < MAX_EXTRACTED; i += 1) {
-          extractedColoursEl.appendChild(buildSwatch(extractedColours[i], 'Use extracted colour', function (colour) { applyColour(colour, true); }));
-        }
+      function drawFabricImage(g, id, pos, strips, fabric) {
+        var clipId = 'clip-' + id;
+        var clip = createSvgEl('clipPath', {
+          id: clipId,
+          class: 'block-clip',
+          clipPathUnits: 'userSpaceOnUse'
+        });
+        strips.forEach(function (r) {
+          clip.appendChild(createSvgEl('rect', {
+            x: r.x,
+            y: r.y,
+            width: r.w,
+            height: r.h
+          }));
+        });
+        defs.appendChild(clip);
+
+        var image = createSvgEl('image', {
+          class: 'block-fabric-image',
+          href: fabric.dataUrl,
+          x: pos.x,
+          y: pos.y,
+          width: BLOCK,
+          height: BLOCK,
+          preserveAspectRatio: 'xMidYMid slice',
+          'clip-path': 'url(#' + clipId + ')'
+        });
+        image.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', fabric.dataUrl);
+        g.appendChild(image);
       }
 
-      function applyColour(colour, remember) {
-        var hex = normaliseHex(colour);
-        setPickerColour(hex);
-        if (selectedGroup) {
-          var patches = patchesFor(selectedGroup);
-          for (var i = 0; i < patches.length; i += 1) {
-            patches[i].style.fill = hex;
-            patches[i].style.fillOpacity = '1';
+      function drawStripOutlines(g, strips) {
+        // No permanent strip outlines: the real quilt has fabric pieces separated by sashing/gaps only.
+      }
+
+      function drawBlocks() {
+        blocksLayer.innerHTML = '';
+        clearGeneratedClips();
+        for (var row = 0; row < ROWS; row += 1) {
+          for (var col = 0; col < COLS; col += 1) {
+            var pos = blockPosition(row, col);
+            var id = blockId(row, col);
+            var orientation = (row + col) % 2 === 0 ? 'horizontal' : 'vertical';
+            var strips = stripRects(pos.x, pos.y, orientation);
+            var g = createSvgEl('g', {
+              class: 'quilt-block',
+              'data-block-id': id,
+              'data-row': row,
+              'data-col': col
+            });
+
+            var fabric = blockFills[id] ? fabricById(blockFills[id]) : null;
+            if (fabric) drawFabricImage(g, id, pos, strips, fabric);
+            else drawEmptyStrips(g, strips);
+
+            drawStripOutlines(g, strips);
+
+            if (id === selectedBlockId) {
+              g.appendChild(createSvgEl('rect', {
+                class: 'selection-outline',
+                x: pos.x,
+                y: pos.y,
+                width: BLOCK,
+                height: BLOCK
+              }));
+            }
+
+            g.appendChild(createSvgEl('rect', {
+              class: 'block-hit',
+              x: pos.x,
+              y: pos.y,
+              width: BLOCK,
+              height: BLOCK,
+              'data-block-id': id
+            }));
+
+            blocksLayer.appendChild(g);
           }
-          selectedGroup.setAttribute('data-colour', hex);
         }
-        if (remember) addRecentColour(hex);
       }
 
-      function clearSelected() {
-        if (!selectedGroup) return;
-        var patches = patchesFor(selectedGroup);
-        for (var i = 0; i < patches.length; i += 1) {
-          patches[i].style.fill = '#ffffff';
-          patches[i].style.fillOpacity = '1';
+      function setSelectedBlock(id) {
+        selectedBlockId = selectedBlockId === id ? null : id;
+        drawBlocks();
+      }
+
+      function applySelectedFabricToBlock(id) {
+        if (!selectedFabricId) {
+          setSelectedBlock(id);
+          return;
         }
-        selectedGroup.setAttribute('data-colour', '#ffffff');
-        setPickerColour('#ffffff');
-        addRecentColour('#ffffff');
+        selectedBlockId = id;
+        blockFills[id] = selectedFabricId;
+        drawBlocks();
+      }
+
+      function addPatternDef(fabric) {
+        // Fabric photos are now drawn as clipped SVG images per block, so they fill the full 10" block.
+      }
+
+      function renderSwatches() {
+        swatchGrid.innerHTML = '';
+        fabrics.forEach(function (fabric) {
+          var btn = document.createElement('button');
+          btn.type = 'button';
+          btn.className = 'swatch' + (fabric.id === selectedFabricId ? ' selected' : '');
+          btn.style.backgroundImage = 'url("' + fabric.dataUrl + '")';
+          btn.title = fabric.name;
+          btn.setAttribute('aria-label', 'Select pattern ' + fabric.name);
+          btn.addEventListener('click', function () {
+            selectedFabricId = selectedFabricId === fabric.id ? null : fabric.id;
+            selectedPatternName.textContent = selectedFabricId ? fabric.name : 'None';
+            renderSwatches();
+          });
+          var label = document.createElement('span');
+          label.className = 'swatch-name';
+          label.textContent = fabric.name;
+          btn.appendChild(label);
+          swatchGrid.appendChild(btn);
+        });
+      }
+
+      function imageToDataUrl(img) {
+        try {
+          var canvas = document.createElement('canvas');
+          var w = img.naturalWidth || img.width;
+          var h = img.naturalHeight || img.height;
+          if (!w || !h) return null;
+          canvas.width = w;
+          canvas.height = h;
+          var ctx = canvas.getContext('2d');
+          ctx.drawImage(img, 0, 0);
+          return canvas.toDataURL('image/jpeg', 0.92);
+        } catch (e) {
+          return null;
+        }
+      }
+
+      function addBuiltInSwatch(spec, src, img) {
+        if (fabricById(spec.id)) return;
+        var dataUrl = imageToDataUrl(img) || src;
+        fabrics.push({
+          id: spec.id,
+          name: spec.name,
+          dataUrl: dataUrl,
+          img: img,
+          sourceUrl: src
+        });
+        renderSwatches();
+      }
+
+      function tryLoadBuiltInSource(spec, sourceIndex) {
+        if (sourceIndex >= spec.sources.length) return;
+        var img = new Image();
+        img.onload = function () {
+          addBuiltInSwatch(spec, spec.sources[sourceIndex], img);
+        };
+        img.onerror = function () {
+          tryLoadBuiltInSource(spec, sourceIndex + 1);
+        };
+        img.src = spec.sources[sourceIndex];
+      }
+
+      function loadBuiltInSwatches() {
+        builtInSwatches.forEach(function (spec) {
+          tryLoadBuiltInSource(spec, 0);
+        });
+      }
+
+      function loadSwatchFiles(files) {
+        Array.prototype.forEach.call(files, function (file) {
+          if (!/^image\/(png|jpeg)$/.test(file.type)) return;
+          var reader = new FileReader();
+          reader.onload = function () {
+            var img = new Image();
+            img.src = reader.result;
+            var fabric = {
+              id: 'fabric-' + nextFabricId,
+              name: file.name.replace(/\.(png|jpg|jpeg)$/i, ''),
+              dataUrl: reader.result,
+              img: img
+            };
+            nextFabricId += 1;
+            fabrics.push(fabric);
+            addPatternDef(fabric);
+            selectedFabricId = fabric.id;
+            selectedPatternName.textContent = fabric.name;
+            renderSwatches();
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+
+      function clearSelectedBlock() {
+        if (!selectedBlockId) return;
+        delete blockFills[selectedBlockId];
+        drawBlocks();
       }
 
       function resetAll() {
-        for (var i = 0; i < groups.length; i += 1) {
-          var patches = patchesFor(groups[i]);
-          for (var j = 0; j < patches.length; j += 1) {
-            patches[j].style.fill = '#ffffff';
-            patches[j].style.fillOpacity = '1';
+        blockFills = {};
+        selectedBlockId = null;
+        drawBlocks();
+      }
+
+      function promptFileName(base, ext) {
+        var name = window.prompt('File name', base);
+        if (name === null) return null;
+        name = (name.trim() || base).replace(/[\\/:*?"<>|]+/g, '-');
+        if (name.toLowerCase().slice(-(ext.length + 1)) !== '.' + ext) name += '.' + ext;
+        return name;
+      }
+
+      function svgEscape(value) {
+        return String(value).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+      }
+
+      function svgForExport() {
+        var bg = normaliseHex(bgPicker.value);
+        var out = [];
+        out.push('<?xml version="1.0" encoding="UTF-8"?>');
+        out.push('<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="620" height="740" viewBox="0 0 ' + W + ' ' + H + '" data-squared-up-planner="5x6-10in-blocks-2in-gap-v2">');
+        out.push('<rect x="0" y="0" width="' + W + '" height="' + H + '" fill="' + bg + '"/>');
+        out.push('<defs>');
+        for (var row = 0; row < ROWS; row += 1) {
+          for (var col = 0; col < COLS; col += 1) {
+            var pos = blockPosition(row, col);
+            var id = blockId(row, col);
+            var orientation = (row + col) % 2 === 0 ? 'horizontal' : 'vertical';
+            var strips = stripRects(pos.x, pos.y, orientation);
+            out.push('<clipPath id="export-clip-' + id + '" clipPathUnits="userSpaceOnUse">');
+            strips.forEach(function (r) {
+              out.push('<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '"/>');
+            });
+            out.push('</clipPath>');
           }
-          groups[i].removeAttribute('data-colour');
         }
-        deselectGroup();
-        setPickerColour('#d8a24a');
-      }
-
-      function recalculateFitWidth() {
-        var availableW = Math.max(180, viewer.clientWidth - 48);
-        var availableH = Math.max(180, viewer.clientHeight - 48);
-        fitWidth = Math.min(availableW, availableH * (VIEWBOX_WIDTH / VIEWBOX_HEIGHT));
-      }
-
-      function applyWrapSize() {
-        recalculateFitWidth();
-        var width = fitWidth * zoom;
-        var height = width * (VIEWBOX_HEIGHT / VIEWBOX_WIDTH);
-        svgWrap.style.width = width + 'px';
-        svgWrap.style.height = height + 'px';
-      }
-
-      function setZoom(nextZoom, anchorClientX, anchorClientY) {
-        var rect = viewer.getBoundingClientRect();
-        var anchorX = anchorClientX == null ? rect.left + rect.width / 2 : anchorClientX;
-        var anchorY = anchorClientY == null ? rect.top + rect.height / 2 : anchorClientY;
-        var oldWidth = svgWrap.offsetWidth || 1;
-        var oldHeight = svgWrap.offsetHeight || 1;
-        var relativeX = (viewer.scrollLeft + (anchorX - rect.left)) / oldWidth;
-        var relativeY = (viewer.scrollTop + (anchorY - rect.top)) / oldHeight;
-
-        zoom = Math.max(MIN_ZOOM, Math.min(MAX_ZOOM, nextZoom));
-        applyWrapSize();
-
-        window.requestAnimationFrame(function () {
-          var newWidth = svgWrap.offsetWidth || 1;
-          var newHeight = svgWrap.offsetHeight || 1;
-          viewer.scrollLeft = relativeX * newWidth - (anchorX - rect.left);
-          viewer.scrollTop = relativeY * newHeight - (anchorY - rect.top);
-        });
-      }
-
-      function fitView() {
-        zoom = 1;
-        applyWrapSize();
-        window.requestAnimationFrame(function () {
-          viewer.scrollLeft = Math.max(0, (viewer.scrollWidth - viewer.clientWidth) / 2);
-          viewer.scrollTop = Math.max(0, (viewer.scrollHeight - viewer.clientHeight) / 2);
-        });
-      }
-
-      function promptFileName(baseName, extension) {
-        var response = window.prompt('File name', baseName);
-        if (response === null) return null;
-        var cleaned = (response.trim() || baseName).replace(/[\\/:*?"<>|]+/g, '-');
-        if (cleaned.toLowerCase().slice(-extension.length - 1) !== '.' + extension.toLowerCase()) cleaned += '.' + extension;
-        return cleaned;
-      }
-
-      function cleanSvgClone() {
-        var clone = svg.cloneNode(true);
-        clone.removeAttribute('id');
-        removeClass(clone, 'quilt-svg');
-        clone.setAttribute('width', String(VIEWBOX_WIDTH));
-        clone.setAttribute('height', String(VIEWBOX_HEIGHT));
-        clone.setAttribute('viewBox', '0 0 ' + VIEWBOX_WIDTH + ' ' + VIEWBOX_HEIGHT);
-        clone.setAttribute('data-quilt-picker-save', SAVE_MARKER);
-        clone.setAttribute('data-quilt-pattern-id', PATTERN_ID);
-
-        var selected = clone.querySelectorAll('.selected');
-        for (var i = 0; i < selected.length; i += 1) removeClass(selected[i], 'selected');
-
-        var savedGroups = clone.querySelectorAll('.quilt-colour-group');
-        for (var j = 0; j < savedGroups.length; j += 1) {
-          removeClass(savedGroups[j], 'quilt-colour-group');
-          savedGroups[j].removeAttribute('data-group-id');
-          savedGroups[j].removeAttribute('data-group-name');
-          savedGroups[j].removeAttribute('data-group-index');
-          savedGroups[j].removeAttribute('data-colour');
+        out.push('</defs>');
+        for (var row2 = 0; row2 < ROWS; row2 += 1) {
+          for (var col2 = 0; col2 < COLS; col2 += 1) {
+            var pos2 = blockPosition(row2, col2);
+            var id2 = blockId(row2, col2);
+            var orientation2 = (row2 + col2) % 2 === 0 ? 'horizontal' : 'vertical';
+            var strips2 = stripRects(pos2.x, pos2.y, orientation2);
+            var fabric = blockFills[id2] ? fabricById(blockFills[id2]) : null;
+            if (fabric) {
+              out.push('<image x="' + pos2.x + '" y="' + pos2.y + '" width="' + BLOCK + '" height="' + BLOCK + '" preserveAspectRatio="xMidYMid slice" clip-path="url(#export-clip-' + id2 + ')" href="' + svgEscape(fabric.dataUrl) + '" xlink:href="' + svgEscape(fabric.dataUrl) + '"/>');
+            } else {
+              strips2.forEach(function (r) {
+                out.push('<rect x="' + r.x + '" y="' + r.y + '" width="' + r.w + '" height="' + r.h + '" fill="#ffffff"/>');
+              });
+            }
+          }
         }
-        return clone;
+        out.push('</svg>');
+        return out.join('\n');
       }
 
-      function serialiseCleanSvg() {
-        return '<?xml version="1.0" encoding="UTF-8"?>\n' + new XMLSerializer().serializeToString(cleanSvgClone());
+      function serialiseSvg() {
+        return svgForExport();
       }
 
       function triggerDownload(blob, filename) {
         var url = URL.createObjectURL(blob);
-        var link = document.createElement('a');
-        link.href = url;
-        link.download = filename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+        var a = document.createElement('a');
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(function () { URL.revokeObjectURL(url); }, 0);
       }
 
-      function saveSvg() {
-        var filename = promptFileName(DEFAULT_BASE_NAME, 'svg');
+      function downloadSvg() {
+        var filename = promptFileName('squared-up-fabric-planner', 'svg');
         if (!filename) return;
-        triggerDownload(new Blob([serialiseCleanSvg()], { type: 'image/svg+xml' }), filename);
+        triggerDownload(new Blob([serialiseSvg()], { type: 'image/svg+xml' }), filename);
       }
 
-      function downloadRaster(type) {
-        var extension = type === 'jpeg' ? 'jpg' : 'png';
-        var filename = promptFileName(DEFAULT_BASE_NAME, extension);
-        if (!filename) return;
-
-        var url = URL.createObjectURL(new Blob([serialiseCleanSvg()], { type: 'image/svg+xml' }));
-        var image = new Image();
-        image.onload = function () {
-          var scale = 2;
-          var canvas = document.createElement('canvas');
-          canvas.width = VIEWBOX_WIDTH * scale;
-          canvas.height = VIEWBOX_HEIGHT * scale;
-          var ctx = canvas.getContext('2d');
-          ctx.fillStyle = '#ffffff';
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-          var mime = type === 'jpeg' ? 'image/jpeg' : 'image/png';
-          canvas.toBlob(function (blob) {
-            if (blob) triggerDownload(blob, filename);
-            URL.revokeObjectURL(url);
-          }, mime, 0.95);
-        };
-        image.onerror = function () {
-          URL.revokeObjectURL(url);
-          window.alert('Could not create the image file.');
-        };
-        image.src = url;
+      function drawImageCover(ctx, img, x, y, w, h) {
+        var iw = img.naturalWidth || img.width;
+        var ih = img.naturalHeight || img.height;
+        if (!iw || !ih) return;
+        var scale = Math.max(w / iw, h / ih);
+        var sw = w / scale;
+        var sh = h / scale;
+        var sx = (iw - sw) / 2;
+        var sy = (ih - sh) / 2;
+        ctx.drawImage(img, sx, sy, sw, sh, x, y, w, h);
       }
 
-      function readFileAsText(file, callback) {
-        var reader = new FileReader();
-        reader.onload = function () { callback(null, String(reader.result || '')); };
-        reader.onerror = function () { callback(reader.error || new Error('File read failed')); };
-        reader.readAsText(file);
-      }
-
-      function fillFromElement(element) {
-        var explicit = element.getAttribute('fill');
-        if (explicit) return normaliseHex(explicit);
-        if (element.style && element.style.fill) return normaliseHex(element.style.fill);
-        var styleAttr = element.getAttribute('style') || '';
-        var match = styleAttr.match(/fill\s*:\s*([^;]+)/i);
-        if (match) return normaliseHex(match[1]);
-        return '#ffffff';
-      }
-
-      function handleLoadSvg(file) {
-        if (!file) return;
-        readFileAsText(file, function (error, text) {
-          if (error) {
-            window.alert('Could not read that SVG file.');
-            return;
-          }
-          var doc = new DOMParser().parseFromString(text, 'image/svg+xml');
-          var root = doc.documentElement;
-          if (!root || String(root.tagName).toLowerCase() !== 'svg') {
-            window.alert('That file is not a valid SVG.');
-            return;
-          }
-          if (root.getAttribute('data-quilt-picker-save') !== SAVE_MARKER || root.getAttribute('data-quilt-pattern-id') !== PATTERN_ID) {
-            window.alert('That SVG is not a quilt file saved by this app.');
-            return;
-          }
-
-          var savedPatches = {};
-          var imported = root.querySelectorAll('.patch[id], polygon[id^="patch-"]');
-          for (var i = 0; i < imported.length; i += 1) savedPatches[imported[i].id] = fillFromElement(imported[i]);
-
-          var current = svg.querySelectorAll('.patch[id]');
-          for (var j = 0; j < current.length; j += 1) {
-            if (!Object.prototype.hasOwnProperty.call(savedPatches, current[j].id)) {
-              window.alert('That SVG does not match this quilt pattern.');
-              return;
-            }
-          }
-
-          for (var k = 0; k < current.length; k += 1) {
-            current[k].style.fill = savedPatches[current[k].id] || '#ffffff';
-            current[k].style.fillOpacity = '1';
-          }
-          deselectGroup();
-          setPickerColour('#d8a24a');
+      function imageReady(img) {
+        return new Promise(function (resolve) {
+          if (!img) return resolve();
+          if (img.complete && (img.naturalWidth || img.width)) return resolve();
+          img.onload = function () { resolve(); };
+          img.onerror = function () { resolve(); };
         });
       }
 
-      function colourDistance(a, b) {
-        return Math.sqrt(
-          Math.pow(a.r - b.r, 2) +
-          Math.pow(a.g - b.g, 2) +
-          Math.pow(a.b - b.b, 2)
-        );
-      }
-
-      function rgbToHsl(r, g, b) {
-        r /= 255; g /= 255; b /= 255;
-        var max = Math.max(r, g, b);
-        var min = Math.min(r, g, b);
-        var l = (max + min) / 2;
-        if (max === min) return { s: 0, l: l };
-        var d = max - min;
-        var s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-        return { s: s, l: l };
-      }
-
-      function readFileAsDataURL(file, callback) {
-        var reader = new FileReader();
-        reader.onload = function () { callback(null, reader.result); };
-        reader.onerror = function () { callback(reader.error || new Error('File read failed')); };
-        reader.readAsDataURL(file);
-      }
-
-      function extractPaletteFromImage(file) {
-        if (!file) return;
-        readFileAsDataURL(file, function (error, dataUrl) {
-          if (error) {
-            window.alert('Could not read that image.');
-            return;
+      function drawRasterToCanvas(canvas, scale) {
+        var ctx = canvas.getContext('2d');
+        canvas.width = W * scale;
+        canvas.height = H * scale;
+        ctx.fillStyle = normaliseHex(bgPicker.value);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        for (var row = 0; row < ROWS; row += 1) {
+          for (var col = 0; col < COLS; col += 1) {
+            var pos = blockPosition(row, col);
+            var id = blockId(row, col);
+            var orientation = (row + col) % 2 === 0 ? 'horizontal' : 'vertical';
+            var strips = stripRects(pos.x, pos.y, orientation);
+            var fabric = blockFills[id] ? fabricById(blockFills[id]) : null;
+            ctx.save();
+            ctx.beginPath();
+            strips.forEach(function (r) {
+              ctx.rect(r.x * scale, r.y * scale, r.w * scale, r.h * scale);
+            });
+            ctx.clip();
+            if (fabric && fabric.img) {
+              drawImageCover(ctx, fabric.img, pos.x * scale, pos.y * scale, BLOCK * scale, BLOCK * scale);
+            } else {
+              ctx.fillStyle = '#ffffff';
+              strips.forEach(function (r) {
+                ctx.fillRect(r.x * scale, r.y * scale, r.w * scale, r.h * scale);
+              });
+            }
+            ctx.restore();
           }
-          var image = new Image();
-          image.onload = function () {
-            var maxDimension = 160;
-            var scale = Math.min(1, maxDimension / Math.max(image.width, image.height));
-            var width = Math.max(1, Math.round(image.width * scale));
-            var height = Math.max(1, Math.round(image.height * scale));
-            var canvas = document.createElement('canvas');
-            canvas.width = width;
-            canvas.height = height;
-            var ctx = canvas.getContext('2d');
-            ctx.drawImage(image, 0, 0, width, height);
-            var data = ctx.getImageData(0, 0, width, height).data;
-            var buckets = {};
-
-            for (var i = 0; i < data.length; i += 4) {
-              if (data[i + 3] < 220) continue;
-              var r = data[i], g = data[i + 1], b = data[i + 2];
-              var qR = Math.max(0, Math.min(255, Math.round(r / 16) * 16));
-              var qG = Math.max(0, Math.min(255, Math.round(g / 16) * 16));
-              var qB = Math.max(0, Math.min(255, Math.round(b / 16) * 16));
-              var key = qR + ',' + qG + ',' + qB;
-              var hsl = rgbToHsl(r, g, b);
-              var weight = 1;
-              if (hsl.l > 0.95 || hsl.l < 0.05) weight *= 0.5;
-              if (hsl.s > 0.2) weight *= 1.15;
-              buckets[key] = (buckets[key] || 0) + weight;
-            }
-
-            var colours = [];
-            for (var key in buckets) {
-              if (Object.prototype.hasOwnProperty.call(buckets, key)) {
-                var parts = key.split(',');
-                colours.push({ r: Number(parts[0]), g: Number(parts[1]), b: Number(parts[2]), weight: buckets[key] });
-              }
-            }
-            colours.sort(function (a, b) { return b.weight - a.weight; });
-
-            var merged = [];
-            for (var c = 0; c < colours.length && merged.length < MAX_EXTRACTED; c += 1) {
-              var keep = true;
-              for (var m = 0; m < merged.length; m += 1) {
-                if (colourDistance(colours[c], merged[m]) <= 42) { keep = false; break; }
-              }
-              if (keep) merged.push(colours[c]);
-            }
-            if (merged.length < 4) {
-              for (var extra = 0; extra < colours.length && merged.length < Math.min(4, colours.length); extra += 1) {
-                if (merged.indexOf(colours[extra]) === -1) merged.push(colours[extra]);
-              }
-            }
-
-            extractedColours = [];
-            for (var x = 0; x < merged.length && x < MAX_EXTRACTED; x += 1) {
-              var hex = '#' + [merged[x].r, merged[x].g, merged[x].b].map(function (v) {
-                return pad2(Number(v).toString(16));
-              }).join('');
-              extractedColours.push(normaliseHex(hex));
-            }
-            renderExtractedColours();
-          };
-          image.onerror = function () { window.alert('Could not load that image.'); };
-          image.src = dataUrl;
-        });
-      }
-
-      function beginPan(clientX, clientY) {
-        panState = {
-          startX: clientX,
-          startY: clientY,
-          scrollLeft: viewer.scrollLeft,
-          scrollTop: viewer.scrollTop,
-          moved: false
-        };
-        addClass(viewer, 'dragging');
-      }
-
-      function updatePan(clientX, clientY) {
-        if (!panState) return;
-        var dx = clientX - panState.startX;
-        var dy = clientY - panState.startY;
-        if (Math.abs(dx) > 4 || Math.abs(dy) > 4) {
-          panState.moved = true;
-          suppressClick = true;
         }
-        viewer.scrollLeft = panState.scrollLeft - dx;
-        viewer.scrollTop = panState.scrollTop - dy;
       }
 
-      function endPan() {
-        if (!panState) return;
-        var moved = panState.moved;
-        panState = null;
-        removeClass(viewer, 'dragging');
-        if (moved) window.setTimeout(function () { suppressClick = false; }, 80);
+      function downloadRaster(kind) {
+        var ext = kind === 'jpeg' ? 'jpg' : 'png';
+        var filename = promptFileName('squared-up-fabric-planner', ext);
+        if (!filename) return;
+        var promises = [];
+        fabrics.forEach(function (fabric) { promises.push(imageReady(fabric.img)); });
+        Promise.all(promises).then(function () {
+          var canvas = document.createElement('canvas');
+          drawRasterToCanvas(canvas, EXPORT_SCALE);
+          canvas.toBlob(function (outBlob) {
+            if (outBlob) triggerDownload(outBlob, filename);
+          }, kind === 'jpeg' ? 'image/jpeg' : 'image/png', 0.95);
+        });
       }
 
-      function init() {
-        setupGroups();
-        renderRecentColours();
-        renderExtractedColours();
-        setPickerColour('#d8a24a');
-        fitView();
+      function svgPointFromEvent(event) {
+        var pt = svg.createSVGPoint();
+        pt.x = event.clientX;
+        pt.y = event.clientY;
+        return pt.matrixTransform(svg.getScreenCTM().inverse());
+      }
 
-        svg.addEventListener('click', function (event) {
-          if (suppressClick) { suppressClick = false; return; }
-          var group = findColourGroup(event.target) || groupFromPoint(event.clientX, event.clientY);
-          if (group) toggleGroup(group);
-        });
-
-        viewer.addEventListener('mousedown', function (event) {
-          if (event.button !== 0) return;
-          beginPan(event.clientX, event.clientY);
-        });
-        document.addEventListener('mousemove', function (event) { updatePan(event.clientX, event.clientY); });
-        document.addEventListener('mouseup', endPan);
-
-        viewer.addEventListener('touchstart', function (event) {
-          if (event.touches.length !== 1) {
-            touchState = null;
-            endPan();
-            return;
+      function blockAtPoint(point) {
+        for (var row = 0; row < ROWS; row += 1) {
+          for (var col = 0; col < COLS; col += 1) {
+            var pos = blockPosition(row, col);
+            if (point.x >= pos.x && point.x <= pos.x + BLOCK && point.y >= pos.y && point.y <= pos.y + BLOCK) {
+              return blockId(row, col);
+            }
           }
-          var touch = event.touches[0];
-          touchState = {
-            startX: touch.clientX,
-            startY: touch.clientY,
-            group: groupFromPoint(touch.clientX, touch.clientY) || findColourGroup(event.target),
-            dragging: false
-          };
-        }, false);
-        viewer.addEventListener('touchmove', function (event) {
-          if (!touchState || event.touches.length !== 1) return;
-          var touch = event.touches[0];
-          var dx = touch.clientX - touchState.startX;
-          var dy = touch.clientY - touchState.startY;
-          var movedFarEnoughToPan = Math.abs(dx) > 18 || Math.abs(dy) > 18;
+        }
+        return null;
+      }
 
-          if (!touchState.dragging && movedFarEnoughToPan) {
-            touchState.dragging = true;
-            beginPan(touchState.startX, touchState.startY);
-          }
+      function handleSvgTap(event) {
+        var source = event.changedTouches ? event.changedTouches[0] : event;
+        if (!source) return;
+        var point = svgPointFromEvent(source);
+        var id = blockAtPoint(point);
+        if (id) applySelectedFabricToBlock(id);
+      }
 
-          if (touchState.dragging) {
-            updatePan(touch.clientX, touch.clientY);
-            if (event.preventDefault) event.preventDefault();
-          }
-        }, false);
-        viewer.addEventListener('touchend', function (event) {
-          var state = touchState;
-          var touch = event.changedTouches && event.changedTouches.length ? event.changedTouches[0] : null;
-          touchState = null;
-
-          if (state && state.dragging) {
-            endPan();
-            return;
-          }
-
-          endPan();
-          var group = state ? state.group : null;
-          if (!group && touch) group = groupFromPoint(touch.clientX, touch.clientY);
-
-          if (group) {
-            if (event.preventDefault) event.preventDefault();
-            suppressClick = true;
-            toggleGroup(group);
-            window.setTimeout(function () { suppressClick = false; }, 700);
-          }
-        }, false);
-        viewer.addEventListener('touchcancel', function () {
-          touchState = null;
-          endPan();
-        });
-
-        viewer.addEventListener('wheel', function (event) {
+      var touchStart = null;
+      svg.addEventListener('click', function (event) {
+        handleSvgTap(event);
+      });
+      svg.addEventListener('touchstart', function (event) {
+        var t = event.changedTouches && event.changedTouches[0];
+        if (!t) return;
+        touchStart = { x: t.clientX, y: t.clientY };
+      });
+      svg.addEventListener('touchend', function (event) {
+        var t = event.changedTouches && event.changedTouches[0];
+        if (!t || !touchStart) return;
+        var dx = Math.abs(t.clientX - touchStart.x);
+        var dy = Math.abs(t.clientY - touchStart.y);
+        touchStart = null;
+        if (dx < 12 && dy < 12) {
           event.preventDefault();
-          var factor = event.deltaY < 0 ? ZOOM_FACTOR : 1 / ZOOM_FACTOR;
-          setZoom(zoom * factor, event.clientX, event.clientY);
-        }, false);
+          handleSvgTap(event);
+        }
+      });
 
-        colourPicker.addEventListener('input', function () { applyColour(colourPicker.value, false); });
-        colourPicker.addEventListener('change', function () { applyColour(colourPicker.value, true); });
-        clearSelectedBtn.addEventListener('click', clearSelected);
-        resetAllBtn.addEventListener('click', resetAll);
-        saveSvgBtn.addEventListener('click', saveSvg);
-        loadSvgBtn.addEventListener('click', function () { loadSvgInput.click(); });
-        loadSvgInput.addEventListener('change', function () {
-          if (loadSvgInput.files && loadSvgInput.files[0]) handleLoadSvg(loadSvgInput.files[0]);
-          loadSvgInput.value = '';
-        });
-        downloadPngBtn.addEventListener('click', function () { downloadRaster('png'); });
-        downloadJpegBtn.addEventListener('click', function () { downloadRaster('jpeg'); });
-        extractPaletteBtn.addEventListener('click', function () { extractImageInput.click(); });
-        extractImageInput.addEventListener('change', function () {
-          if (extractImageInput.files && extractImageInput.files[0]) extractPaletteFromImage(extractImageInput.files[0]);
-          extractImageInput.value = '';
-        });
-        zoomOutBtn.addEventListener('click', function () { setZoom(zoom / ZOOM_FACTOR); });
-        zoomInBtn.addEventListener('click', function () { setZoom(zoom * ZOOM_FACTOR); });
-        fitViewBtn.addEventListener('click', fitView);
-        window.addEventListener('resize', function () { setZoom(zoom); });
-      }
+      bgPicker.addEventListener('input', function () {
+        var hex = normaliseHex(bgPicker.value);
+        sashingRect.setAttribute('fill', hex);
+        bgHex.textContent = hex.toUpperCase();
+      });
+      uploadSwatchesBtn.addEventListener('click', function () { swatchInput.click(); });
+      swatchInput.addEventListener('change', function () {
+        if (swatchInput.files) loadSwatchFiles(swatchInput.files);
+        swatchInput.value = '';
+      });
+      clearBlockBtn.addEventListener('click', clearSelectedBlock);
+      resetBtn.addEventListener('click', resetAll);
+      downloadSvgBtn.addEventListener('click', downloadSvg);
+      downloadPngBtn.addEventListener('click', function () { downloadRaster('png'); });
+      downloadJpegBtn.addEventListener('click', function () { downloadRaster('jpeg'); });
 
-      if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
-      else init();
-    }());
+      loadBuiltInSwatches();
+      drawBlocks();
+    })();
   </script>
 </body>
 </html>
